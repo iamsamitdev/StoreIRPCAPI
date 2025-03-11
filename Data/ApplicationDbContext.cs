@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using StoreIRPCAPI.Models;
 
 namespace StoreIRPCAPI.Data;
 
-public partial class ApplicationDbContext : DbContext
+public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -18,6 +20,9 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // เพิ่มส่วนนี้เข้าไป
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<category>(entity =>
         {
             entity.HasKey(e => e.category_id).HasName("categories_pkey");
