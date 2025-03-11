@@ -115,4 +115,54 @@ public class ProductController : ControllerBase
         // ส่งข้อมูลกลับไปให้ผู้ใช้
         return Ok(product);
     }
+
+    // ฟังก์ชันสำหรับการแก้ไขข้อมูลสินค้า
+    // PUT: /api/Product/{id}
+    [HttpPut("{id}")]
+    public ActionResult<product> UpdateProduct(int id, product product)
+    {
+        // ดึงข้อมูลสินค้าตาม id
+        var existingProduct = _context.products.FirstOrDefault(p => p.product_id == id);
+
+        // ถ้าไม่พบข้อมูลจะแสดงข้อความ Not Found
+        if (existingProduct == null)
+        {
+            return NotFound();
+        }
+
+        // แก้ไขข้อมูลสินค้า
+        existingProduct.product_name = product.product_name;
+        existingProduct.unit_price = product.unit_price;
+        existingProduct.unit_in_stock = product.unit_in_stock;
+        existingProduct.category_id = product.category_id;
+
+        // บันทึกข้อมูล
+        _context.SaveChanges();
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้
+        return Ok(existingProduct);
+    }
+
+    // ฟังก์ชันสำหรับการลบข้อมูลสินค้า
+    // DELETE: /api/Product/{id}
+    [HttpDelete("{id}")]
+    public ActionResult<product> DeleteProduct(int id)
+    {
+        // ดึงข้อมูลสินค้าตาม id
+        var product = _context.products.FirstOrDefault(p => p.product_id == id);
+
+        // ถ้าไม่พบข้อมูลจะแสดงข้อความ Not Found
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        // ลบข้อมูล
+        _context.products.Remove(product);
+        _context.SaveChanges();
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้
+        return Ok(product);
+    }
+
 }
