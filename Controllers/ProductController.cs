@@ -38,7 +38,7 @@ public class ProductController : ControllerBase
     // ฟังก์ชันสำหรับการดึงข้อมูลสินค้าทั้งหมด
     // GET: /api/Product
     [HttpGet]
-    public ActionResult<product> GetProducts([FromQuery] string pname, [FromQuery] decimal pprice)
+    public ActionResult<product> GetProducts([FromQuery] string? pname, [FromQuery] decimal? pprice)
     {
         // LINQ is a query language for C# and .NET
         // LINQ สำหรับการดึงข้อมูลจากตาราง Products ทั้งหมด
@@ -68,6 +68,7 @@ public class ProductController : ControllerBase
         
         // กรณีมีการค้นหาข้อมูล มากกว่า 1 เงื่อนไข เช่น จากชื่อสินค้า (pname) หรือ ราคา (pprice)
         // ค้นหาแบบ OR (เจอชื่อหรือราคาอย่างใดอย่างหนึ่ง)
+
         if(!string.IsNullOrEmpty(pname) || pprice > 0)
         {
             query = query.Where(p => 
@@ -76,8 +77,42 @@ public class ProductController : ControllerBase
             );
         }
 
+        // เรียงมูลสินค้าจากไอดีสินค้ามากไปน้อย
+        query = query.OrderByDescending(p => p.product_id);
+
         // ส่งข้อมูลกลับไปให้ผู้ใช้งาน
         return Ok(query);
     }
 
+    // ฟังก์ชันสำหรับการดึงข้อมูลสินค้าตาม id
+    // GET: /api/Product/{id}
+    [HttpGet("{id}")]
+    public ActionResult<product> GetProduct(int id)
+    {
+        // LINQ สำหรับการดึงข้อมูลจากตาราง Products ตาม id
+        // FirstOrDefault คือการดึงข้อมูลที่เจอค่าแรกที่ตรงเงื่อนไข หรือถ้าไม่เจอจะคืนค่า null
+        var product = _context.products.FirstOrDefault(p => p.product_id == id);
+
+        // ถ้าไม่พบข้อมูลจะแสดงข้อความ Not Found
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้งาน
+        return Ok(product);
+    }
+
+    // ฟังก์ชันสำหรับการเพิ่มข้อมูลสินค้า
+    // POST: /api/Product
+    [HttpPost]
+    public ActionResult<product> CreateProduct(product product)
+    {
+        // เพิ่มข้อมูลลงในตาราง Products
+        _context.products.Add(product);
+        _context.SaveChanges();
+
+        // ส่งข้อมูลกลับไปให้ผู้ใช้
+        return Ok(product);
+    }
 }
